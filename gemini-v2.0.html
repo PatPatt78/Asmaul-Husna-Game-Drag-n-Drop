@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Klasifikasi Asmaul Husna - Kelas 6 SD</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #e4f7eb 0%, #daf0ff 50%, #fff7db 100%);
+            --text-main: #1e3a4c;
+            --green-box: #a6e3b8;
+            --green-badge: #1f9d55;
+            --blue-box: #a5d8f7;
+            --blue-badge: #1d7bb8;
+            --yellow-box: #fde08b;
+            --yellow-badge: #d97706;
+            --purple-box: #d4bbf3;
+            --purple-badge: #7e42b6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-main);
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Ornamen Latar Belakang */
+        .decor-item {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.7;
+        }
+        .cloud-left { top: 25px; left: 40px; font-size: 2.2rem; }
+        .star-left { top: 48%; left: 30px; font-size: 1.6rem; color: #f59e0b; }
+        .sparkle-right { top: 40%; right: 40px; font-size: 1.6rem; color: #f59e0b; }
+        .moon-badge {
+            top: 25px;
+            right: 40px;
+            background: #6366f1;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Top Header */
+        header {
+            width: 92%;
+            max-width: 1200px;
+            padding: 20px 0 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            z-index: 1;
+        }
+
+        .header-titles .subtitle {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #10b981;
+            text-transform: uppercase;
+        }
+
+        .header-titles .main-title {
+            font-family: 'Fredoka', cursive;
+            font-size: 2rem;
+            color: #1a4d6e;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .sound-btn {
+            background: white;
+            border: 2px solid #e2e8f0;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .score-display-card {
+            background: #fef3c7;
+            border: 2px solid #fde68a;
+            border-radius: 18px;
+            padding: 6px 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.15);
+        }
+
+        .score-display-card .lbl {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #b45309;
+            text-transform: uppercase;
+        }
+
+        .score-display-card .val {
+            font-family: 'Fredoka', cursive;
+            font-size: 1.6rem;
+            color: #92400e;
+            line-height: 1.1;
+        }
+
+        /* Info Banner */
+        .instruction-banner {
+            width: 92%;
+            max-width: 1200px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 10px 20px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #334155;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            z-index: 1;
+        }
+
+        /* Main Game Layout */
+        .game-board {
+            width: 92%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 1;
+            padding-bottom: 30px;
+        }
+
+        /* 4 Mangkuk Target Drop */
+        .drop-bowls-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .bowl-box {
+            border-radius: 26px;
+            min-height: 220px;
+            padding: 14px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            border: 2px dashed rgba(0,0,0,0.15);
+        }
+
+        .bowl-box.drag-over {
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .bowl-green { background: #bbf0cb; border-color: #83db9f; }
+        .bowl-blue { background: #bae6fd; border-color: #7dd3fc; }
+        .bowl-yellow { background: #fed7aa; border-color: #fdba74; }
+        .bowl-purple { background: #ddd6fe; border-color: #c4b5fd; }
+
+        .bowl-badge {
+            font-family: 'Fredoka', cursive;
+            padding: 7px 22px;
+            border-radius: 14px;
+            color: white;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+        }
+
+        .badge-green { background: var(--green-badge); }
+        .badge-blue { background: var(--blue-badge); }
+        .badge-yellow { background: var(--yellow-badge); }
+        .badge-purple { background: var(--purple-badge); }
+
+        .bowl-items-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 120px;
+        }
+
+        /* Bagian Bank Kartu */
+        .cards-shelf-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(10px);
+            border: 2px dashed #93c5fd;
+            border-radius: 26px;
+            padding: 16px 20px;
+        }
+
+        .shelf-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            font-weight: 700;
+            color: #1e3a4c;
+        }
+
+        .shelf-header .remaining-txt {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .cards-deck {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 10px;
+            justify-content: center;
+            min-height: 150px;
+        }
+
+        /* Desain Model Kartu Stik Es Krim */
+        .icecream-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: grab;
+            touch-action: none;
+            transition: transform 0.15s ease;
+            width: 135px;
+        }
+
+        .icecream-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .icecream-card:active {
+            cursor: grabbing;
+        }
+
+        .icecream-card.dragging {
+            opacity: 0.3;
+        }
+
+        .card-scoop {
+            width: 100%;
+            min-height: 80px;
+            border-radius: 16px;
+            padding: 8px 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            line-height: 1.25;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+            border: 2px solid rgba(255,255,255,0.8);
+            z-index: 2;
+        }
+
+        .card-stick {
+            width: 22px;
+            height: 18px;
+            background: #e2a970;
+            border-radius: 0 0 8px 8px;
+            margin-top: -3px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            z-index: 1;
+            border: 1px solid #c88849;
+        }
+
+        /* Varian Warna Pastel Kartu */
+        .card-c1 .card-scoop { background: #dcfce7; color: #166534; }
+        .card-c2 .card-scoop { background: #fce7f3; color: #9d174d; }
+        .card-c3 .card-scoop { background: #e0f2fe; color: #075985; }
+        .card-c4 .card-scoop { background: #fef3c7; color: #92400e; }
+        .card-c5 .card-scoop { background: #ffedd5; color: #9a3412; }
+        .card-c6 .card-scoop { background: #f3e8ff; color: #6b21a8; }
+
+        /* Tampilan Kartu Saat Terkunci di Mangkuk */
+        .icecream-card.placed {
+            cursor: default;
+            width: 100%;
+            transform: none !important;
+            animation: popCheck 0.3s ease;
+        }
+        .icecream-card.placed .card-stick { display: none; }
+        .icecream-card.placed .card-scoop {
+            min-height: auto;
+            padding: 7px 10px;
+            border-radius: 12px;
+            font-size: 0.76rem;
+            background: white !important;
+            border: 1.5px solid rgba(0,0,0,0.08);
+        }
+
+        /* Notifikasi Melayang (Toast) */
+        .toast-notif {
+            position: fixed;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-family: 'Fredoka', cursive;
+            font-size: 1.1rem;
+            color: white;
+            z-index: 999;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .toast-notif.show { transform: translateX(-50%) translateY(0); }
+        .toast-notif.correct { background: #22c55e; }
+        .toast-notif.wrong { background: #ef4444; }
+
+        /* Modals (Start & End) */
+        .modal-shade {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 990;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            padding: 15px;
+        }
+
+        .modal-shade.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: #fffdfa;
+            border-radius: 30px;
+            padding: 35px 30px;
+            max-width: 580px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border: 3px solid #fef3c7;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-shade.open .modal-box {
+            transform: scale(1);
+        }
+
+        .modal-sparkle-icon {
+            font-size: 1.8rem;
+            color: #10b981;
+            margin-bottom: 5px;
+        }
+
+        .modal-head-title {
+            font-family: 'Fredoka', cursive;
+            font-size: 1.9rem;
+            color: #1e3a4c;
+            margin-bottom: 10px;
+        }
+
+        .modal-desc-txt {
+            font-size: 0.95rem;
+            color: #475569;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        /* 3 Box Petunjuk Layar Awal */
+        .guide-boxes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .guide-item {
+            background: white;
+            border: 2px solid #f1f5f9;
+            border-radius: 18px;
+            padding: 14px 10px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .guide-icon { font-size: 1.6rem; }
+        .guide-txt { font-size: 0.8rem; font-weight: 700; color: #334155; }
+
+        /* Tombol Play & Restart */
+        .btn-play-round {
+            background: #eab308;
+            color: white;
+            border: none;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            font-size: 1.6rem;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(234, 179, 8, 0.4);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .btn-play-round:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-green-main {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 34px;
+            font-family: 'Fredoka', cursive;
+            font-size: 1.15rem;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(16, 185, 129, 0.35);
+            transition: transform 0.2s;
+        }
+
+        .btn-green-main:hover {
+            transform: translateY(-2px);
+        }
+
+        .score-huge-num {
+            font-family: 'Fredoka', cursive;
+            font-size: 2.8rem;
+            color: #d97706;
+            margin: 5px 0;
+            line-height: 1;
+        }
+
+        @keyframes popCheck {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @media (max-width: 820px) {
+            .drop-bowls-container { grid-template-columns: repeat(2, 1fr); }
+            .header-titles .main-title { font-size: 1.5rem; }
+            .icecream-card { width: 120px; }
+        }
+
+        @media (max-width: 500px) {
+            .drop-bowls-container { grid-template-columns: 1fr; }
+            .guide-boxes-grid { grid-template-columns: 1fr; }
+            .header-right { flex-direction: column-reverse; align-items: flex-end; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ornamen Latar -->
+    <div class="decor-item cloud-left">☁️</div>
+    <div class="decor-item star-left">⭐</div>
+    <div class="decor-item sparkle-right">✨</div>
+    <div class="decor-item moon-badge">🌙</div>
+
+    <div id="toast" class="toast-notif"></div>
+
+    <!-- Header Atas -->
+    <header>
+        <div class="header-titles">
+            <div class="subtitle">Petualangan Nilai Baik</div>
+            <h1 class="main-title">Klasifikasi Asmaul Husna</h1>
+        </div>
+        <div class="header-right">
+            <button class="sound-btn" onclick="toggleMute()" title="Suara">🔊</button>
+            <div class="score-display-card">
+                <div class="lbl">SKOR KAMU</div>
+                <div id="scoreNumber" class="val">0</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Instruksi Banner -->
+    <div class="instruction-banner">
+        🍦 Seret kartu stik es krim ke mangkuk Asmaul Husna yang tepat!
+    </div>
+
+    <!-- Game Board -->
+    <main class="game-board">
+        <!-- 4 Kotak Mangkuk -->
+        <section class="drop-bowls-container">
+            <!-- Al-Waliy -->
+            <div class="bowl-box bowl-green" data-target="al-waliy">
+                <div class="bowl-badge badge-green">Al-Waliy</div>
+                <div class="bowl-items-list" id="zone-al-waliy"></div>
+            </div>
+
+            <!-- Al-Hamid -->
+            <div class="bowl-box bowl-blue" data-target="al-hamid">
+                <div class="bowl-badge badge-blue">Al-Hamid</div>
+                <div class="bowl-items-list" id="zone-al-hamid"></div>
+            </div>
+
+            <!-- Al-'Adl -->
+            <div class="bowl-box bowl-yellow" data-target="al-adl">
+                <div class="bowl-badge badge-yellow">Al-'Adl</div>
+                <div class="bowl-items-list" id="zone-al-adl"></div>
+            </div>
+
+            <!-- As-Sabur -->
+            <div class="bowl-box bowl-purple" data-target="as-sabur">
+                <div class="bowl-badge badge-purple">As-Sabur</div>
+                <div class="bowl-items-list" id="zone-as-sabur"></div>
+            </div>
+        </section>
+
+        <!-- Bank Kartu -->
+        <section class="cards-shelf-panel">
+            <div class="shelf-header">
+                <span>Kartu yang perlu dikelompokkan</span>
+                <span id="cardsLeft" class="remaining-txt">20 kartu tersisa</span>
+            </div>
+            <div class="cards-deck" id="cardsContainer"></div>
+        </section>
+    </main>
+
+    <!-- Modal Layar Mulai -->
+    <div id="startModal" class="modal-shade open">
+        <div class="modal-box">
+            <div class="modal-sparkle-icon">✨</div>
+            <h2 class="modal-head-title">Game Klasifikasi Asmaul Husna</h2>
+            <p class="modal-desc-txt">
+                Seret setiap kartu ke kotak Asmaul Husna yang sesuai. Bacalah dengan teliti makna dan contoh perilakunya. Kumpulkan skor setinggi mungkin!
+            </p>
+            <div class="guide-boxes-grid">
+                <div class="guide-item">
+                    <span class="guide-icon">🕌</span>
+                    <span class="guide-txt">Kenali 4 Asmaul Husna</span>
+                </div>
+                <div class="guide-item">
+                    <span class="guide-icon">🍦</span>
+                    <span class="guide-txt">Seret kartu ke mangkuk</span>
+                </div>
+                <div class="guide-item">
+                    <span class="guide-icon">⭐</span>
+                    <span class="guide-txt">Raih 100 poin!</span>
+                </div>
+            </div>
+            <button class="btn-play-round" onclick="startGame()">▶</button>
+        </div>
+    </div>
+
+    <!-- Modal Layar Selesai -->
+    <div id="finishModal" class="modal-shade">
+        <div class="modal-box">
+            <div style="font-size: 3rem; margin-bottom: 5px;">🎉</div>
+            <h2 class="modal-head-title">Masya Allah, Hebat!</h2>
+            <div style="font-size: 0.85rem; font-weight: 700; color: #b45309;">SKOR AKHIRMU</div>
+            <div class="score-huge-num" id="finalScoreVal">100</div>
+            <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; margin-bottom: 16px;">20 jawaban benar</div>
+
+            <p class="modal-desc-txt" style="font-size: 0.9rem; margin-bottom: 24px;">
+                🎉 Masya Allah! Kamu telah berhasil mengelompokkan Asmaul Husna dengan benar. Semoga kita dapat meneladani sifat <strong>Al-Waliy</strong>, <strong>Al-Hamid</strong>, <strong>Al-'Adl</strong>, dan <strong>As-Sabur</strong> dalam kehidupan sehari-hari. Terus semangat belajar dan mengamalkan nilai-nilai Asmaul Husna! 🌟
+            </p>
+            <button class="btn-green-main" onclick="restartGame()">🔄 Main Lagi</button>
+        </div>
+    </div>
+
+    <script>
+        // Data 20 Kartu
+        const CARDS_DATA = [
+            { id: 1, text: "Allah Maha Melindungi", target: "al-waliy", color: "card-c1" },
+            { id: 2, text: "Allah Maha Penolong", target: "al-waliy", color: "card-c3" },
+            { id: 3, text: "Allah Maha Terpuji", target: "al-hamid", color: "card-c2" },
+            { id: 4, text: "Allah Maha Adil", target: "al-adl", color: "card-c4" },
+            { id: 5, text: "Allah Maha Sabar", target: "as-sabur", color: "card-c6" },
+            { id: 6, text: "Bersyukur ketika mendapat rizki", target: "al-hamid", color: "card-c5" },
+            { id: 7, text: "Membagi makanan kepada teman sama rata", target: "al-adl", color: "card-c3" },
+            { id: 8, text: "Bersabar ketika mendapat penyakit", target: "as-sabur", color: "card-c1" },
+            { id: 9, text: "Berdoa kepada Allah", target: "al-waliy", color: "card-c2" },
+            { id: 10, text: "Selalu meminta pertolongan kepada Allah", target: "al-waliy", color: "card-c4" },
+            { id: 11, text: "Tidak mudah putus asa karena Allah akan menolong", target: "al-waliy", color: "card-c6" },
+            { id: 12, text: "Mendapat nikmat dengan mengucapkan hamdalah", target: "al-hamid", color: "card-c3" },
+            { id: 13, text: "Bersyukur atas apa yang dimiliki", target: "al-hamid", color: "card-c1" },
+            { id: 14, text: "Memuji kepada Allah atas nikmat sehat", target: "al-hamid", color: "card-c5" },
+            { id: 15, text: "Tidak pilih kasih", target: "al-adl", color: "card-c2" },
+            { id: 16, text: "Membagi tugas kelompok sesuai kemampuan", target: "al-adl", color: "card-c4" },
+            { id: 17, text: "Memberikan hak kepada orang lain", target: "al-adl", color: "card-c6" },
+            { id: 18, text: "Tidak mudah marah", target: "as-sabur", color: "card-c1" },
+            { id: 19, text: "Antri menunggu giliran ke wc", target: "as-sabur", color: "card-c5" },
+            { id: 20, text: "Tidak mengeluh ketika mendapat cobaan", target: "as-sabur", color: "card-c2" }
+        ];
+
+        let score = 0;
+        let placedCount = 0;
+        let isMuted = false;
+        let draggedItem = null;
+        const totalItems = CARDS_DATA.length;
+
+        // Audio Efek Sintetis (Web Audio API)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (isMuted) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, now); // D5
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.12); // A5
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.22);
+                osc.start(now);
+                osc.stop(now + 0.22);
+            } else if (type === 'wrong') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(260, now);
+                osc.frequency.linearRampToValueAtTime(150, now + 0.18);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            } else if (type === 'fanfare') {
+                [523.25, 659.25, 783.99, 1046.50].forEach((f, idx) => {
+                    const noteOsc = audioCtx.createOscillator();
+                    const noteGain = audioCtx.createGain();
+                    noteOsc.connect(noteGain);
+                    noteGain.connect(audioCtx.destination);
+                    noteOsc.frequency.setValueAtTime(f, now + idx * 0.12);
+                    noteGain.gain.setValueAtTime(0.2, now + idx * 0.12);
+                    noteGain.gain.linearRampToValueAtTime(0, now + idx * 0.12 + 0.22);
+                    noteOsc.start(now + idx * 0.12);
+                    noteOsc.stop(now + idx * 0.12 + 0.22);
+                });
+            }
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            document.querySelector('.sound-btn').textContent = isMuted ? '🔇' : '🔊';
+        }
+
+        function showToast(text, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = text;
+            toast.className = `toast-notif ${type} show`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 1000);
+        }
+
+        function shuffle(arr) {
+            return arr.slice().sort(() => Math.random() - 0.5);
+        }
+
+        function initCards() {
+            score = 0;
+            placedCount = 0;
+            updateStats();
+
+            document.querySelectorAll('.bowl-items-list').forEach(z => z.innerHTML = '');
+            const cardsDeck = document.getElementById('cardsContainer');
+            cardsDeck.innerHTML = '';
+
+            const shuffled = shuffle(CARDS_DATA);
+            shuffled.forEach(item => {
+                const card = document.createElement('div');
+                card.className = `icecream-card ${item.color}`;
+                card.draggable = true;
+                card.dataset.id = item.id;
+                card.dataset.target = item.target;
+
+                card.innerHTML = `
+                    <div class="card-scoop">${item.text}</div>
+                    <div class="card-stick"></div>
+                `;
+
+                // Desktop Drag
+                card.addEventListener('dragstart', handleDragStart);
+                card.addEventListener('dragend', handleDragEnd);
+
+                // Mobile Touch
+                card.addEventListener('touchstart', handleTouchStart, { passive: false });
+                card.addEventListener('touchmove', handleTouchMove, { passive: false });
+                card.addEventListener('touchend', handleTouchEnd);
+
+                cardsDeck.appendChild(card);
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('scoreNumber').textContent = score;
+            document.getElementById('cardsLeft').textContent = `${totalItems - placedCount} kartu tersisa`;
+        }
+
+        // Setup Drop Targets
+        document.querySelectorAll('.bowl-box').forEach(box => {
+            box.addEventListener('dragover', e => {
+                e.preventDefault();
+                box.classList.add('drag-over');
+            });
+            box.addEventListener('dragleave', () => box.classList.remove('drag-over'));
+            box.addEventListener('drop', e => {
+                e.preventDefault();
+                box.classList.remove('drag-over');
+                if (draggedItem) {
+                    processDrop(draggedItem, box.dataset.target);
+                }
+            });
+        });
+
+        function handleDragStart(e) {
+            draggedItem = this;
+            this.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', this.dataset.id);
+        }
+
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+            draggedItem = null;
+        }
+
+        // Touch Drag Handlers
+        function handleTouchStart(e) {
+            draggedItem = this;
+            this.classList.add('dragging');
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            this.style.position = 'fixed';
+            this.style.left = `${touch.clientX - 60}px`;
+            this.style.top = `${touch.clientY - 40}px`;
+            this.style.zIndex = '1000';
+            this.style.pointerEvents = 'none';
+        }
+
+        function handleTouchEnd(e) {
+            this.style.position = '';
+            this.style.left = '';
+            this.style.top = '';
+            this.style.zIndex = '';
+            this.style.pointerEvents = '';
+            this.classList.remove('dragging');
+
+            const touch = e.changedTouches[0];
+            const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+            const bowl = dropTarget ? dropTarget.closest('.bowl-box') : null;
+
+            if (bowl) {
+                processDrop(this, bowl.dataset.target);
+            }
+            draggedItem = null;
+        }
+
+        // Validasi Penempatan
+        function processDrop(cardElement, bowlTarget) {
+            if (cardElement.dataset.target === bowlTarget) {
+                // Jawaban Benar: +5 Poin per kartu
+                score += 5;
+                placedCount += 1;
+                playSound('correct');
+                showToast('✓ Benar!', 'correct');
+
+                cardElement.classList.add('placed');
+                cardElement.draggable = false;
+                cardElement.removeEventListener('touchstart', handleTouchStart);
+
+                document.getElementById(`zone-${bowlTarget}`).appendChild(cardElement);
+                updateStats();
+
+                if (placedCount === totalItems) {
+                    setTimeout(showGameOver, 400);
+                }
+            } else {
+                // Jawaban Salah
+                playSound('wrong');
+                showToast('✗ Coba lagi.', 'wrong');
+            }
+        }
+
+        function showGameOver() {
+            playSound('fanfare');
+            document.getElementById('finalScoreVal').textContent = score;
+            document.getElementById('finishModal').classList.add('open');
+
+            // Efek Konfeti Selebrasi
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function startGame() {
+            document.getElementById('startModal').classList.remove('open');
+            initCards();
+        }
+
+        function restartGame() {
+            document.getElementById('finishModal').classList.remove('open');
+            initCards();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Drop target inisialisasi awal
+        });
+    </script>
+</body>
+</html>
